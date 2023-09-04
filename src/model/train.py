@@ -3,16 +3,25 @@
 import argparse
 import glob
 import os
-
+import mlflow
 import pandas as pd
-
+import numpy as np
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
 
 
 # define functions
 def main(args):
     # TO DO: enable autologging
-
+    mlflow.autolog()
+    experiment_name = "MlOpsLearn"
+    if not mlflow.get_experiment_by_name(experiment_name):
+        mlflow.create_experiment(name=experiment_name) 
+    
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    
+    mlflow.set_tracking_uri('http://52.251.52.55:8080/')
 
     # read data
     df = get_csvs_df(args.training_data)
@@ -21,7 +30,21 @@ def main(args):
     X_train, X_test, y_train, y_test = split_data(df)
 
     # train model
-    train_model(args.reg_rate, X_train, X_test, y_train, y_test)
+    model = train_model(args.reg_rate, X_train, X_test, y_train, y_test)
+    (acc, auc) = eval_metrics(model, X_test, y_test)
+
+    #print(f"  ACC: {acc}")
+    #print(f"  AUC: {auc}")
+    #mlflow.log_param("acc", acc)
+    #mlflow.log_param("auc", auc)
+ 
+
+def eval_metrics(model, X_test, y_test):
+    y_hat = model.predict(X_test)
+    acc = np.average(y_hat == y_test)
+    y_scores = model.predict_proba(X_test)
+    auc = roc_auc_score(y_test,y_scores[:,1])
+    return acc, auc
 
 
 def get_csvs_df(path):
@@ -35,10 +58,14 @@ def get_csvs_df(path):
 
 # TO DO: add function to split data
 
+def split_data(df):
+    X, y = df[['Pregnancies','PlasmaGlucose','DiastolicBloodPressure','TricepsThickness','SerumInsulin','BMI','DiabetesPedigree','Age']].values, df['Diabetic'].values
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=0)
+    return X_train, X_test, y_train, y_test
 
 def train_model(reg_rate, X_train, X_test, y_train, y_test):
     # train model
-    LogisticRegression(C=1/reg_rate, solver="liblinear").fit(X_train, y_train)
+    return LogisticRegression(C=1/reg_rate, solver="liblinear").fit(X_train, y_train)
 
 
 def parse_args():
@@ -60,8 +87,8 @@ def parse_args():
 # run script
 if __name__ == "__main__":
     # add space in logs
-    print("\n\n")
-    print("*" * 60)
+    #print("\n\n")
+    #print("*" * 60)
 
     # parse args
     args = parse_args()
@@ -70,5 +97,5 @@ if __name__ == "__main__":
     main(args)
 
     # add space in logs
-    print("*" * 60)
-    print("\n\n")
+    #print("*" * 60)
+    #print("\n\n")
