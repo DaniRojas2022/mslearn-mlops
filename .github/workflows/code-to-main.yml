@@ -1,0 +1,11 @@
+name: Flujo para mover codigo a main
+run-name: Moviendo codigo a la rama main
+on: push
+jobs:
+  mover-main:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@main
+    - name: Paso temporal
+      run: echo "Proximamente agregaremos mas pasos"
