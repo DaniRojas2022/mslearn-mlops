@@ -1,11 +1,37 @@
 name: Flujo para mover codigo a main
 run-name: Moviendo codigo a la rama main
-on: push
+on:
+  pull_request:
+    branches: [main]
 jobs:
-  mover-main:
+  lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Check out repo
-      uses: actions/checkout@main
-    - name: Paso temporal
-      run: echo "Proximamente agregaremos mas pasos"
+      - name: Check out repo
+        uses: actions/checkout@main
+      - name: Use Python version 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+      - name: Install Flake8
+        run: |
+          python -m pip install flake8
+      - name: Run linting tests
+      run: | 
+        flake8 src/model/
+  Pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@main
+      - name: Use Python version 3.8
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install .e .
+      - name: Run unit test
+        run: python -m pytest .\tests\test_train.py
