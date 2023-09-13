@@ -1,0 +1,39 @@
+name: Job para entrenar modelos en Azure Machine Lerning
+run-name: Entrenando modelos en Azure Machine Learning
+on:
+  push:
+    branches: [ main ]
+jobs:
+  train-dev:
+    runs-on: ubuntu-latest
+    enviroment:
+      name: dev
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@main
+    - name: Install az ml extension
+      run: az extension add -n ml -y
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+    - name: Trigger Azure Machine Learning job in Env Dev
+      run: |
+        az ml job create --file ./src/job-dev.yml --resource-group FrameworkMLOps-dev --workspace-name mlw-framework-dev
+  train-prod:
+    needs: train-dev
+    runs-on: ubuntu-latest
+    enviroment:
+      name: prod
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@main
+    - name: Install az ml extension
+      run: az extension add -n ml -y
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS}}
+    - name: Trigger Azure Machine Learning job in Env Prod
+      run: |
+        az ml job create --file ./src/job-prod.yml --resource-group FrameworkMLOps --workspace-name mlw-framework
