@@ -6,7 +6,7 @@ on:
 jobs:
   train-dev:
     runs-on: ubuntu-latest
-    enviroment:
+    environment:
       name: dev
     steps:
     - name: Check out repo
@@ -23,7 +23,7 @@ jobs:
   train-prod:
     needs: train-dev
     runs-on: ubuntu-latest
-    enviroment:
+    environment:
       name: prod
     steps:
     - name: Check out repo
