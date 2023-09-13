@@ -10,6 +10,6 @@ inputs:
     path: ../experimentation/data
   reg_rate: 0.01
 environment: azureml:AzureML-sklearn-0.24-ubuntu18.04-py37-cpu@latest
-compute: clustercomputemlops
-experiment_name: learn_mlops
-description: experimentacion azure machine learning - mlops
+compute: clustercomputemlops-dev
+experiment_name: learn_mlops_dev
+description: experimentacion en dev azure machine learning - mlops
